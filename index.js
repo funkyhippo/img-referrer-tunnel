@@ -22,9 +22,22 @@ proxy.on("proxyReq", function (proxyReq, req, res, options) {
   proxyReq.setHeader("referer", normalizeUrl(req.url));
 });
 
+proxy.on("error", function (err, req, res) {
+  res.writeHead(500, {
+    "Content-Type": "text/plain",
+  });
+
+  res.end("There was an error.");
+});
+
 let server = http.createServer(function (req, res) {
+  console.log(
+    `[${new Date()}] ${normalizeUrl(req.url)} by ${
+      req.connection.remoteAddress
+    }`
+  );
   proxy.web(req, res, { target: normalizeUrl(req.url) });
 });
 
-console.log("listening on port 5050");
+console.log(`listening on port ${PORT}`);
 server.listen(PORT);
