@@ -1,5 +1,6 @@
 const http = require("http"),
-  httpProxy = require("http-proxy");
+  httpProxy = require("http-proxy"),
+  urlParser = require("url");
 const PORT = process.env.PORT || 5000;
 
 const normalizeUrl = (url) => {
@@ -12,6 +13,15 @@ const normalizeUrl = (url) => {
     return "https://" + url;
   }
 };
+
+const parseUrl = (rawUrl) => {
+  const parsedUrl = urlParser.parse(rawUrl, true);
+  return {
+    query: parsedUrl.query,
+    path: parsedUrl.path,
+  };
+};
+
 let proxy = httpProxy.createProxyServer({
   secure: false,
   changeOrigin: true, // Change the origin to get around CF
@@ -19,7 +29,7 @@ let proxy = httpProxy.createProxyServer({
 });
 
 proxy.on("proxyReq", function (proxyReq, req, res, options) {
-  proxyReq.setHeader("referer", normalizeUrl(req.url));
+  proxyReq.setHeader("referer", options.referrer || normalizeUrl(req.url));
 });
 
 proxy.on("error", function (err, req, res) {
@@ -31,12 +41,14 @@ proxy.on("error", function (err, req, res) {
 });
 
 let server = http.createServer(function (req, res) {
-  console.log(
-    `[${new Date()}] ${normalizeUrl(req.url)} by ${
-      req.connection.remoteAddress
-    }`
-  );
-  proxy.web(req, res, { target: normalizeUrl(req.url) });
+  const parsedUrl = parseUrl(req.url);
+
+  console.log(`[${new Date()}] ${req.url} by ${req.connection.remoteAddress}`);
+
+  proxy.web(req, res, {
+    target: normalizeUrl(req.url),
+    referrer: parsedUrl.query.host,
+  });
 });
 
 console.log(`listening on port ${PORT}`);
