@@ -1,5 +1,5 @@
 const HOME_TEXT = `
-Info here: http://github.com/funkyhippo/img-proxy/
+Info here: http://github.com/funkyhippo/img-referrer-tunnel/
 
 This is a barebones implementation of the well-known cors-anywhere proxy,
 but with some additions that make image hotlinking more seamless.

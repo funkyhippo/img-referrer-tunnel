@@ -1,4 +1,4 @@
-name: Deploy to Heroku
+name: Run Tests
 
 on:
   push:
