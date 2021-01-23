@@ -12,18 +12,17 @@ proxy.on("proxyReq", (proxyReq, req, res, options) => {
 });
 
 proxy.on("proxyRes", (proxyRes, req, res) => {
-  if (
-    proxyRes.statusCode === 200 &&
-    proxyRes.headers["content-type"].startsWith("image")
-  ) {
-    proxyRes.headers["cache-control"] = "public, max-age=604800";
-    proxyRes.headers["access-control-allow-origin"] = "*";
-    delete proxyRes.headers["set-cookie"];
-  } else {
-    res.writeHead(500, {
-      "Content-Type": "text/plain",
-    });
-    res.end("Invalid content type. This proxy only supports images.");
+  if (proxyRes.statusCode === 200) {
+    if (proxyRes.headers["content-type"].startsWith("image")) {
+      proxyRes.headers["cache-control"] = "public, max-age=604800";
+      proxyRes.headers["access-control-allow-origin"] = "*";
+      delete proxyRes.headers["set-cookie"];
+    } else {
+      res.writeHead(500, {
+        "Content-Type": "text/plain",
+      });
+      res.end("Invalid content type. This proxy only supports images.");
+    }
   }
 });
 
