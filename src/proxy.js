@@ -15,6 +15,7 @@ proxy.on("proxyRes", (proxyRes, req, res) => {
   if (proxyRes.statusCode === 200) {
     proxyRes.headers["cache-control"] = "public, max-age=604800";
     proxyRes.headers["access-control-allow-origin"] = "*";
+    delete proxyRes.headers["set-cookie"];
   }
 });
 
