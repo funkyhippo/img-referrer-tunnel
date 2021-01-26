@@ -5,18 +5,28 @@ const proxy = httpProxy.createProxyServer({
   secure: false,
   changeOrigin: true, // To get around CF/most proxies
   ignorePath: true, // Ignore path for proxies like NGINX to route
+  followRedirects: true, // For GDrive images
 });
 
 proxy.on("proxyReq", (proxyReq, req, res, options) => {
-  proxyReq.setHeader("referer", utils.getRefererHeader(req));
+  try {
+    if (!options["hopped"]) {
+      proxyReq.setHeader("referer", utils.getRefererHeader(req));
+    }
+    options["hopped"] = true;
+  } catch (e) {
+    console.log(e);
+  }
 });
 
 proxy.on("proxyRes", (proxyRes, req, res) => {
   if (proxyRes.statusCode === 200) {
     if (proxyRes.headers["content-type"].startsWith("image")) {
+      Object.keys(proxyRes.headers).forEach((header) => {
+        delete proxyRes.headers[header];
+      });
       proxyRes.headers["cache-control"] = "public, max-age=604800";
       proxyRes.headers["access-control-allow-origin"] = "*";
-      delete proxyRes.headers["set-cookie"];
     } else {
       res.writeHead(500, {
         "Content-Type": "text/plain",
