@@ -22,11 +22,13 @@ proxy.on("proxyReq", (proxyReq, req, res, options) => {
 proxy.on("proxyRes", (proxyRes, req, res) => {
   if (
     proxyRes.statusCode === 200 &&
-    proxyRes.headers["content-type"].startsWith("image")
+    (proxyRes.headers["content-type"] || "").startsWith("image")
   ) {
-    Object.keys(proxyRes.headers).forEach((header) => {
-      delete proxyRes.headers[header];
-    });
+    Object.keys(proxyRes.headers)
+      .filter((header) => !header.toLowerCase().startsWith("content"))
+      .forEach((header) => {
+        delete proxyRes.headers[header];
+      });
     proxyRes.headers["cache-control"] = "public, max-age=604800";
     proxyRes.headers["access-control-allow-origin"] = "*";
   } else {
