@@ -1,3 +1,5 @@
+const http = require("http");
+const https = require("https");
 const urlParser = require("url");
 const mapping = require("../mapping.json");
 
@@ -27,7 +29,16 @@ const getRefererHeader = (req) => {
   return normalizeUrl(req.url);
 };
 
+const ping = (url) => {
+  if (url.startsWith("https:")) {
+    https.get(url);
+  } else if (url.startsWith("http:")) {
+    http.get(url);
+  }
+};
+
 module.exports = {
   normalizeUrl,
   getRefererHeader,
+  ping,
 };
