@@ -3,13 +3,14 @@
   "version": "1.0.0",
   "description": "Proxy images that are blocked by referrer policies.",
   "scripts": {
-    "start": "node index.js",
+    "start": "pm2-runtime start ecosystem.config.js --env production",
     "test": "jest"
   },
   "license": "MIT",
   "dependencies": {
     "http-proxy": "^1.18.1",
     "jest": "^26.6.3",
+    "pm2": "^4.5.6",
     "supertest": "^6.1.1"
   }
 }
